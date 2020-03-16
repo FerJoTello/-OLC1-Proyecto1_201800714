@@ -102,6 +102,7 @@ namespace _OLC1_Proyecto1_201800714
                     AnalizadorLexico lexico = new AnalizadorLexico();
                     LinkedList<Token> listaTokens = lexico.Analizar(entrada);
                     richTextBox1.Text = lexico.imprimirListaToken(listaTokens);
+
                 }
             }
         }

@@ -12,9 +12,10 @@ namespace _OLC1_Proyecto1_201800714
         {
             //ELEMENTOS
             ID,
-            LETRA,
+            LETRA,  //Minus y mayus.
             CADENA,
-            CARACTER,
+            C_TODO, //Caracter especial [:todo:] (funciona como una cadena).
+            CARACTER_ESPECIAL,  //Salto de linea, tab, comilla simple y comilla doble.
             NUMERO,
             SIGNO,
             //PALABRAS RESERVADAS
@@ -32,14 +33,9 @@ namespace _OLC1_Proyecto1_201800714
             S_SUMA,
             S_LLAVE_IZQ,
             S_LLAVE_DER,
-            //CARACTERES ESPECIALES
-            C_SALTO,
-            C_COMILLA_SIMPLE,
-            C_COMILLA_DOBLE,
-            C_TAB,
-            C_TODO,
+            //COMENTARIOS
             COMENTARIO_INLINE,
-            COMENTARIO_MULTILINE, //solo un token para comentario :v, y los especiales los tengo como valor conjunto :v
+            COMENTARIO_MULTILINE, 
             INDEFINIDO
         }
         private Tipo tipoToken;

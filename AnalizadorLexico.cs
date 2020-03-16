@@ -14,8 +14,8 @@ namespace _OLC1_Proyecto1_201800714
         private int estado;
         //Variable que representa el lexema que actualmente se esta acumulando
         private String auxlex;
-        private int fila = 0;
-        private int columna = 0;
+        private int fila = 1;
+        private int columna = 1;
         //Metodo que se encarga de analizar la entrada.
         public LinkedList<Token> Analizar(String entrada)
         {
@@ -153,11 +153,11 @@ namespace _OLC1_Proyecto1_201800714
                                 agregarToken(Token.Tipo.INDEFINIDO);
                             }
                         }
-                        //caracter
-                        else if (c.CompareTo('\'') == 0)
+                        //caracter ESPECIAL
+                        else if (c.CompareTo('\\') == 0)
                         {
                             agregarCaracter(c);
-                            estado = 15;
+                            estado = 20;
                         }
                         //cadena
                         else if (c.CompareTo('"') == 0)
@@ -205,14 +205,14 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            if(c.CompareTo(' ') == 0)
+                            if (c.CompareTo(' ') == 0)
                             {
                                 columna++;
                             }
                             else if (c.CompareTo('\n') == 0)
                             {
                                 fila++;
-                                columna = 0;
+                                columna = 1;
                             }
                             else if (c.CompareTo('#') == 0 && i == entrada.Length - 1)
                             {
@@ -407,23 +407,6 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         i -= 1;
                         break;
-                    //Caracter
-                    case 15:
-                        if (c.CompareTo('\'') != 0 && c.CompareTo('\\') != 0 && i != entrada.Length - 1)
-                        {
-                            agregarCaracter(c);
-                            estado = 21;
-                        }
-                        else if (c.CompareTo('\\') == 0)
-                        {
-                            agregarCaracter(c);
-                            estado = 20;
-                        }
-                        else
-                        {
-                            agregarToken(Token.Tipo.INDEFINIDO);
-                        }
-                        break;
                     //Cadena
                     case 16:
                         if (c.CompareTo('"') != 0 && i != entrada.Length - 1)
@@ -432,7 +415,7 @@ namespace _OLC1_Proyecto1_201800714
                             if (c.CompareTo('\n') == 0)
                             {
                                 fila++;
-                                columna = 0;
+                                columna = 1;
                             }
                         }
                         else if (c.CompareTo('"') == 0)
@@ -468,7 +451,7 @@ namespace _OLC1_Proyecto1_201800714
                         {
                             agregarToken(Token.Tipo.COMENTARIO_INLINE);
                             fila++;
-                            columna = 0;
+                            columna = 1;
                         }
                         break;
                     //Validacion de Cadena
@@ -494,17 +477,14 @@ namespace _OLC1_Proyecto1_201800714
                         else
                         {
                             agregarToken(Token.Tipo.INDEFINIDO);
+                            i--;
                         }
                         break;
-                    //Validacion de caracter
+                    //Validacion de caracter especial
                     case 21:
-                        if (c.CompareTo('\'') == 0)
+                        if (auxlex.StartsWith("\\") && auxlex.Length == 2)
                         {
-                            agregarCaracter(c);
-                            if (auxlex.StartsWith("'") && auxlex.EndsWith("'"))
-                            {
-                                agregarToken(Token.Tipo.CARACTER);
-                            }
+                            agregarToken(Token.Tipo.CARACTER_ESPECIAL);
                         }
                         else
                         {
@@ -537,7 +517,7 @@ namespace _OLC1_Proyecto1_201800714
                                 if (c.CompareTo('\n') == 0)
                                 {
                                     fila++;
-                                    columna = 0;
+                                    columna = 1;
                                 }
                             }
                         }
