@@ -86,12 +86,25 @@ namespace _OLC1_Proyecto1_201800714
             TabPage pestañaN = new CustomTab(cont_pestaña);
             tabControl1.TabPages.Add(pestañaN);
         }
+        //Boton Analizar Entrada
         private void button1_Click(object sender, EventArgs e)
         {
-
+            String entrada;
+            foreach(Control item in this.tabControl1.SelectedTab.Controls)
+            {
+                Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
+                if (a)
+                {
+                    RichTextBox tempo = (RichTextBox)item;
+                    //Recuperando texto del RichTextBox de la pestaña seleccionada para el analisis.
+                    entrada = item.Text;
+                    entrada += "#";
+                    AnalizadorLexico lexico = new AnalizadorLexico();
+                    LinkedList<Token> listaTokens = lexico.Analizar(entrada);
+                    richTextBox1.Text = lexico.imprimirListaToken(listaTokens);
+                }
+            }
         }
-
-        
     }
     public class CustomTab : TabPage
     {
