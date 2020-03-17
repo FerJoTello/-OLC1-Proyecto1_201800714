@@ -25,7 +25,7 @@ namespace _OLC1_Proyecto1_201800714
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.InitialDirectory = "C:\\Users\\Fernando\\OneDrive\\Documentos";
             ofd.Filter = "Archivos ER (*.er)|*.er|Todos los Archivos (*.*)|*.*";
-            if(ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
                 //Verificando existencia de archivo
                 try
@@ -56,7 +56,7 @@ namespace _OLC1_Proyecto1_201800714
                         tabControl1.SelectedTab.Controls.Add(nuevaCajaTexto);
                     }
                 }
-                catch (FileNotFoundException ex)
+                catch (FileNotFoundException)
                 {
                     MessageBox.Show("Ha ocurrido un error en la carga.");
                 }
@@ -90,7 +90,7 @@ namespace _OLC1_Proyecto1_201800714
         private void button1_Click(object sender, EventArgs e)
         {
             String entrada;
-            foreach(Control item in this.tabControl1.SelectedTab.Controls)
+            foreach (Control item in this.tabControl1.SelectedTab.Controls)
             {
                 Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
                 if (a)
@@ -101,8 +101,20 @@ namespace _OLC1_Proyecto1_201800714
                     entrada += "#";
                     AnalizadorLexico lexico = new AnalizadorLexico();
                     LinkedList<Token> listaTokens = lexico.Analizar(entrada);
-                    richTextBox1.Text = lexico.imprimirListaToken(listaTokens);
-
+                    richTextBox1.Text = "**Inicia Análisis Léxico**\n";
+                    richTextBox1.Text += lexico.imprimirListaToken(listaTokens);
+                    richTextBox1.Text += "**Finaliza Análisis Léxico**\n";
+                    AnalizadorER analizadorER = new AnalizadorER();
+                    analizadorER.Parsear(listaTokens);
+                    richTextBox1.Text += "**Inicia Análisis Sintáctico**\n";
+                    if (!analizadorER.existenciaError)
+                    {
+                        richTextBox1.Text += "*SIN ERRORES SINTACTICOS*\n**Finaliza Análisis Sintáctico**\n";
+                    }
+                    else
+                    {
+                        richTextBox1.Text += analizadorER.consola;
+                    }
                 }
             }
         }

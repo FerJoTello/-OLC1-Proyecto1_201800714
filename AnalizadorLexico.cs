@@ -490,6 +490,7 @@ namespace _OLC1_Proyecto1_201800714
                         {
                             agregarToken(Token.Tipo.INDEFINIDO);
                         }
+                        i -= 1;
                         break;
                     //Comentario Multiline
                     case 22:

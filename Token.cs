@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace _OLC1_Proyecto1_201800714
 {
-    class Token
+    public class Token
     {
         public enum Tipo
         {
