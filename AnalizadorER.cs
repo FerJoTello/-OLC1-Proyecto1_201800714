@@ -336,7 +336,23 @@ namespace _OLC1_Proyecto1_201800714
                     Console.WriteLine("Ya existe un objeto con ID = " + id);
                 }
                 int n = 0;
+                //Creacion de nodos y sus transiciones.
                 estructura.Numerar(ref n);
+                //Creacion de grafica.
+                String CadenaGraphviz = "digraph AFN{\n" +
+                    "\trankdir=LR;\n" +
+                    "\tGraph[label = \"AFN: " + id + "\"];\n" +
+                    "\tnode [shape = circle, fontsize = 10; style = filled fillcolor=gray, color = black, fontcolor = black];\n" +
+                    "\tI [fontsize = 1; style = filled fillcolor=white,  fontcolor = white, color = white];\n" +
+                    "\tI->n" + estructura.GetFirst().Numero + "[label = Io];\n";
+                //Graficar nodos.
+                estructura.GetFirst().Graficar(ref CadenaGraphviz);
+                CadenaGraphviz += "\tn" + estructura.GetLast().Numero + "[shape = doublecircle];\n" +
+                    "}";
+                Graficador graficadorAFN = new Graficador("AFN_"+id);
+                //Creacion de archivos.
+                graficadorAFN.graficar(CadenaGraphviz);
+                
             }
             catch (ArgumentNullException)
             {

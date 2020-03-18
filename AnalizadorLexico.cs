@@ -478,7 +478,7 @@ namespace _OLC1_Proyecto1_201800714
                         break;
                     //Caracter especial
                     case 20:
-                        if (c.CompareTo('n') == 0 || c.CompareTo('\'') == 0 || c.CompareTo('\"') == 0 || c.CompareTo('t') == 0)
+                        if (c.CompareTo('n') == 0 || c.CompareTo('t') == 0 || c.CompareTo('\'') == 0 || c.CompareTo('\"') == 0)
                         {
                             agregarCaracter(c);
                             estado = 21;

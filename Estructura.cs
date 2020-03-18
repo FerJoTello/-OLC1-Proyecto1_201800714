@@ -5,29 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace _OLC1_Proyecto1_201800714
-{
-    class TipoEstructura
-    {
-        public enum Tipo
-        {
-            OR,
-            AND,
-            KLEEN,
-            TERMINAL
-        }
-    }
-    /* Estructura:      Clase abstracta que permite analizar una ER al recuperar la info en el Analisis Sintactico.
+{   /* Estructura:      Clase abstracta que permite analizar una ER al recuperar la info en el Analisis Sintactico.
      *                  Esto con el fin de controlar a cada Operador (or, and y kleen) e indicar su estructura sin ser especifico en qué es lo que se espera.
      *                  Por lo que cada Operador puede obtener otro Operador (or, and y kleen) o un terminal y así cumplir con la estructura que solicita cada uno.
-     * Parametros:  ->  Tipo: indica qué tipo de Operador se está trabajando (or, and, kleen o terminal).
-     *              ->  ContadorNodo: utilizado para llevar la correlación de cada nodo en la generación de los AFN Y AFD
+     * Parametros:  ->  First: Nodo (estado) inicial de la estructura. Se genera dependiendo el tipo (or, and y kleen)
+     *              ->  Last: Nodo final de la estructura (estado de aceptacion).
      * Metodos:     ->  Ejecutar(int n): utilizado para generar acciones.
-     *              ->  Numerar(int n): utilizado para enumerar cada nodo.
+     *              ->  Numerar(int n): utilizado para enumerar cada nodo y así generar el AFN.
+     *                  Para la numeracion se suele llamar recursivamente dependiendo el tipo de la Estructura guardando los nodos FIrst y Last ya que con ellos se enlazan 
+     *                  los nodos de una Estructura con otra.
      */
     public abstract class Estructura
     {
-        TipoEstructura Tipo;
-        int ContadorNodo;
         Nodo First, Last;
         public void SetFirst(Nodo first)
         {
@@ -64,7 +53,7 @@ namespace _OLC1_Proyecto1_201800714
 
         public override object Numerar(ref int n)
         {
-            Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "");
+            Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "ε");
             if (Estructura1 is Terminal term1)
             {
                 n1 = new Nodo(n++);
@@ -85,7 +74,8 @@ namespace _OLC1_Proyecto1_201800714
                     n6 = new Nodo(n++);
                     Transicion tra5 = new Transicion(epsilon, n6);
                     n3.Transiciones.AddLast(tra5);
-                    n5.Transiciones.AddLast(tra5);
+                    Transicion tra6 = new Transicion(epsilon, n6);
+                    n5.Transiciones.AddLast(tra6);
                 }
                 else
                 {
@@ -97,7 +87,8 @@ namespace _OLC1_Proyecto1_201800714
                     n6 = new Nodo(n++);
                     Transicion tra5 = new Transicion(epsilon, n6);
                     n3.Transiciones.AddLast(tra5);
-                    n5.Transiciones.AddLast(tra5);
+                    Transicion tra6 = new Transicion(epsilon, n6);
+                    n5.Transiciones.AddLast(tra6);
                 }
             }
             else
@@ -119,7 +110,8 @@ namespace _OLC1_Proyecto1_201800714
                     n6 = new Nodo(n++);
                     Transicion tra5 = new Transicion(epsilon, n6);
                     n3.Transiciones.AddLast(tra5);
-                    n5.Transiciones.AddLast(tra5);
+                    Transicion tra6 = new Transicion(epsilon, n6);
+                    n5.Transiciones.AddLast(tra6);
                 }
                 else
                 {
@@ -131,7 +123,8 @@ namespace _OLC1_Proyecto1_201800714
                     n6 = new Nodo(n++);
                     Transicion tra5 = new Transicion(epsilon, n6);
                     n3.Transiciones.AddLast(tra5);
-                    n5.Transiciones.AddLast(tra5);
+                    Transicion tra6 = new Transicion(epsilon, n6);
+                    n5.Transiciones.AddLast(tra6);
                 }
             }
             this.SetFirst(n1);
@@ -199,7 +192,7 @@ namespace _OLC1_Proyecto1_201800714
                 else
                 {
                     Estructura2.Numerar(ref n);
-                    Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "");
+                    Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "ε");
                     n3 = Estructura2.GetFirst();
                     Transicion tra = new Transicion(epsilon, n3);
                     n2.Transiciones.AddLast(tra);
@@ -225,7 +218,7 @@ namespace _OLC1_Proyecto1_201800714
 
         public override object Numerar(ref int n)
         {
-            Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "");
+            Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "ε");
             if (Estructura1 is Terminal term)
             {
                 n1 = new Nodo(n++);
@@ -240,8 +233,8 @@ namespace _OLC1_Proyecto1_201800714
                 n4 = new Nodo(n++);
                 Transicion tra4 = new Transicion(epsilon, n4);
                 n3.Transiciones.AddLast(tra4);
-                //Transicion tra5 = new Transicion(epsilon, n4); n1.Transiciones.AddLast(tra5);
-                n1.Transiciones.AddLast(tra4);
+                Transicion tra5 = new Transicion(epsilon, n4);
+                n1.Transiciones.AddLast(tra5);
                 this.SetFirst(n1);
                 this.SetLast(n4);
             }
@@ -258,8 +251,8 @@ namespace _OLC1_Proyecto1_201800714
                 n4 = new Nodo(n++);
                 Transicion tra4 = new Transicion(epsilon, n4);
                 n3.Transiciones.AddLast(tra4);
-                //Transicion tra5 = new Transicion(epsilon, n4); n1.Transiciones.AddLast(tra5);
-                n1.Transiciones.AddLast(tra4);
+                Transicion tra5 = new Transicion(epsilon, n4);
+                n1.Transiciones.AddLast(tra5);
                 this.SetFirst(n1);
                 this.SetLast(n4);
             }
@@ -282,6 +275,19 @@ namespace _OLC1_Proyecto1_201800714
         {
             TipoTerminal = tipo;
             Valor = val;
+            if (tipo == Terminal.Tipo.CADENA)
+            {
+                Valor = Valor.Insert(0, "\\");
+                Valor = Valor.Insert(Valor.Length - 1, "\\");
+            }
+            else if (tipo == Terminal.Tipo.CARACTER_ESPECIAL)
+            {
+                Valor=Valor.Insert(0, "\\");
+                if (Valor.Equals("\\\\\""))
+                {
+                    Valor=Valor.Insert(0, "\\");
+                }
+            }
         }
         public string GetValor()
         {
@@ -309,16 +315,30 @@ namespace _OLC1_Proyecto1_201800714
             Numero = num;
             Transiciones = new LinkedList<Transicion>();
         }
+        public void Graficar(ref string cadenaGraphviz)
+        {
+            foreach (Transicion transicion in Transiciones)
+            {
+                if (!transicion.Graficado)
+                {
+                    cadenaGraphviz += "\tn" + Numero + "->n" + transicion.NodoDestino.Numero + "[label = \"" + transicion.Terminal.GetValor() + "\"];\n";
+                    transicion.Graficado = true;
+                    transicion.NodoDestino.Graficar(ref cadenaGraphviz);
+                }
+            }
+        }
 
     }
     public class Transicion
     {
-        Terminal Terminal;
-        Nodo NodoDestino;
+        public Terminal Terminal;
+        public Nodo NodoDestino;
+        public Boolean Graficado;
         public Transicion(Terminal term, Nodo nodoDestino)
         {
             Terminal = term;
             NodoDestino = nodoDestino;
+            Graficado = false;
         }
     }
 }

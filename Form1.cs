@@ -95,7 +95,6 @@ namespace _OLC1_Proyecto1_201800714
                 Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
                 if (a)
                 {
-                    RichTextBox tempo = (RichTextBox)item;
                     //Recuperando texto del RichTextBox de la pestaña seleccionada para el analisis.
                     entrada = item.Text;
                     entrada += "#";
