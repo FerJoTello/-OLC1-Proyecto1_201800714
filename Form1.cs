@@ -105,8 +105,8 @@ namespace _OLC1_Proyecto1_201800714
                     richTextBox1.Text += lexico.imprimirListaToken(listaTokens);
                     richTextBox1.Text += "**Finaliza Análisis Léxico**\n";
                     AnalizadorER analizadorER = new AnalizadorER();
-                    analizadorER.Parsear(listaTokens);
                     richTextBox1.Text += "**Inicia Análisis Sintáctico**\n";
+                    analizadorER.Parsear(listaTokens);
                     if (!analizadorER.existenciaError)
                     {
                         richTextBox1.Text += "*SIN ERRORES SINTACTICOS*\n**Finaliza Análisis Sintáctico**\n";

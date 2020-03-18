@@ -40,8 +40,17 @@ namespace _OLC1_Proyecto1_201800714
                             agregarCaracter(c);
                             //Compara los caracteres anteriores y posteriores para saber si es una letra perteneciente a un conjunto.
                             //Si el siguiente o el anterior caracter es igual a '~' o ','
-                            char cNext = entrada.ElementAt(i + 1);
-                            char cPrev = entrada.ElementAt(i - 1);
+                            char cNext, cPrev;
+                            try
+                            {
+                                cNext = entrada.ElementAt(i + 1);
+                                cPrev = entrada.ElementAt(i - 1);
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                cNext = '#';
+                                cPrev = '#';
+                            }
                             if (cNext.CompareTo('~') == 0 || cNext.CompareTo(',') == 0)
                             {
                                 agregarToken(Token.Tipo.LETRA);

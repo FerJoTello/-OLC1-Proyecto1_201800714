@@ -121,13 +121,12 @@ namespace _OLC1_Proyecto1_201800714
         *  Parsear:
         *  Inicia el analisis sintactico llamando al no terminal inicio.
         **/
-        public string Parsear(LinkedList<Token> tokens)
+        public void Parsear(LinkedList<Token> tokens)
         {
             this.listaTokens = tokens;
             controlToken = 0;
             tokenActual = listaTokens.ElementAt(controlToken);
             Inicio();
-            return consola;
         }
         /**
          * TODOS LOS SIGUIENTES SON NO TERMINALES PERTENECIENTES A LA GRAMATICA DEL ANALISIS SINTACTICO.
@@ -336,6 +335,8 @@ namespace _OLC1_Proyecto1_201800714
                 {
                     Console.WriteLine("Ya existe un objeto con ID = " + id);
                 }
+                int n = 0;
+                estructura.Numerar(ref n);
             }
             catch (ArgumentNullException)
             {
