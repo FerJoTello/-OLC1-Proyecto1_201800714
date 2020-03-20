@@ -321,8 +321,12 @@ namespace _OLC1_Proyecto1_201800714
             Parea(Token.Tipo.S_FLECHA);
             try
             {
+                //Se crea una ListaTerminales que se va llenando conforme se encuentra un terminal en Estructura_P.
+                LinkedList<String> ListaTerminales = new LinkedList<String>();
+                //Se crea un ListaNodos que se va llenando conforme se realiza el AFN.
+                LinkedList<Nodo> ListaNodos = new LinkedList<Nodo>();
                 //Se crea un nuevo objeto estructura.
-                Estructura estructura = Estructura();
+                Estructura estructura = Estructura(ref ListaTerminales);
                 Parea(Token.Tipo.S_PUNTO_Y_COMA);
                 //Se vincula el objeto estructura a un objeto simbolo que se agrega a la tablaSimbolos.
                 Simbolo simbolo = new Simbolo(id, "Estructura", estructura);
@@ -335,9 +339,10 @@ namespace _OLC1_Proyecto1_201800714
                 {
                     Console.WriteLine("Ya existe un objeto con ID = " + id);
                 }
+                /***************************************************** AFN *****************************************************/
                 int n = 0;
                 //Creacion de nodos y sus transiciones.
-                estructura.Numerar(ref n);
+                estructura.Numerar(ref ListaNodos, ref n);
                 //Creacion de grafica.
                 String CadenaGraphviz = "digraph AFN{\n" +
                     "\trankdir=LR;\n" +
@@ -346,15 +351,122 @@ namespace _OLC1_Proyecto1_201800714
                     "\tI [fontsize = 1; style = filled fillcolor=white,  fontcolor = white, color = white];\n" +
                     "\tI->n" + estructura.GetFirst().Numero + "[label = Io];\n";
                 //Graficar nodos.
-                estructura.GetFirst().Graficar(ref CadenaGraphviz);
+                Nodo First = estructura.GetFirst();
+                First.Graficar(ref CadenaGraphviz);
                 CadenaGraphviz += "\tn" + estructura.GetLast().Numero + "[shape = doublecircle];\n" +
                     "}";
-                Graficador graficadorAFN = new Graficador("AFN_"+id);
+                Graficador graficadorAFN = new Graficador("AFN_" + id);
                 //Creacion de archivos.
                 graficadorAFN.graficar(CadenaGraphviz);
-                
+                /***************************************************** AFD *****************************************************/
+                int contadorCerraduras = 0;
+                //A
+                LinkedList<Nodo> c0 = new LinkedList<Nodo>(First.ObtenerCerraduras().OrderBy(nodo => nodo.Numero));
+                Cerradura Cerradura0 = new Cerradura(c0);
+                Dictionary<string, Cerradura> Cerraduras = new Dictionary<string, Cerradura>();
+                Cerraduras.Add("n" + contadorCerraduras++, Cerradura0);
+                bool nuevaEntrada;
+                //Creacion de Estados y sus transiciones.
+                do
+                {
+                    Console.WriteLine("Sexo");
+                    nuevaEntrada = false;
+                    Dictionary<string, Cerradura> auxiliar = new Dictionary<string, Cerradura>(Cerraduras);
+                    foreach (KeyValuePair<string, Cerradura> cerradura in Cerraduras)
+                    {
+                        if (!cerradura.Value.Evaluado)
+                        {
+                            //a (terminal con el que se trabaja Mover).
+                            foreach (String terminal in ListaTerminales)
+                            {
+                                //M(A,a) (mover).
+                                LinkedList<Nodo> Mover = new LinkedList<Nodo>();
+                                foreach (Nodo elementoCerradura in cerradura.Value.Elementos)
+                                {
+                                    elementoCerradura.ObtenerMover(ref Mover, terminal);
+                                }
+                                if (Mover.Count != 0)
+                                {
+                                    //C(M(A,a)) (cerradura del mover)
+                                    LinkedList<Nodo> cm = new LinkedList<Nodo>();
+                                    foreach (Nodo elementoMover in Mover)
+                                    {
+                                        cm = new LinkedList<Nodo>(cm.Union(elementoMover.ObtenerCerraduras()));
+                                    }
+                                    cm = new LinkedList<Nodo>(cm.OrderBy(nodo => nodo.Numero));
+                                    bool existe = false;
+                                    //Recorre el diccionario revisando si ya existe un estado igual para agregar la nueva transición.
+                                    foreach (KeyValuePair<string, Cerradura> kvp in auxiliar)
+                                    {
+                                        int tamano = cm.Count;
+                                        bool iguales = false;
+                                        if (kvp.Value.Elementos.Count == cm.Count)
+                                        {
+                                            iguales = true;
+                                            for (int i = 0; i < tamano; i++)
+                                            {
+                                                if (kvp.Value.Elementos.ElementAt(i).Numero != cm.ElementAt(i).Numero)
+                                                {
+                                                    existe = false;
+                                                    iguales = false;
+                                                    break;
+                                                }
+                                            }
+                                            if (iguales)
+                                            {
+                                                TransicionC transicion = new TransicionC(terminal, cerradura.Key);
+                                                kvp.Value.ListaTransiciones.AddLast(transicion);
+                                                existe = true;
+                                                break;
+                                            }
+                                        }
+                                        /*
+                                        if (kvp.Value.Elementos.Equals(cm))
+                                        {
+                                            TransicionC transicion = new TransicionC(terminal, cerradura.Key);
+                                            kvp.Value.ListaTransiciones.AddLast(transicion);
+                                            existe = true;
+                                            break;
+                                        }
+                                        */
+                                    }
+                                    //Si no existe ese estado, se crea y se agrega al diccionario auxiliar.
+                                    if (!existe)
+                                    {
+                                        Cerradura CerraduraMover = new Cerradura(cm);
+                                        TransicionC transicion = new TransicionC(terminal, cerradura.Key);
+                                        CerraduraMover.ListaTransiciones.AddLast(transicion);
+                                        auxiliar.Add("n" + contadorCerraduras++, CerraduraMover);
+                                        nuevaEntrada = true;
+                                    }
+                                }
+                            }
+                            cerradura.Value.Evaluado = true;
+                        }
+                    }
+                    Cerraduras = auxiliar;
+                } while (nuevaEntrada);
+                CadenaGraphviz = "digraph AFD{\n" +
+                    "\trankdir=LR;\n" +
+                    "\tGraph[label = \"AFD: " + id + "\" fontcolor = dodgerblue4];\n" +
+                    "\tnode [shape = circle, fontsize = 10; colorscheme = pubu9, style = filled, fillcolor = 5, color = 6, fontcolor = 1];\n" +
+                    "\tI [fontsize = 1; style = filled fillcolor=white,  fontcolor = white, color = white];\n" +
+                    "\tI->n0[label = Io, colorscheme = pubu9, color = 9, fontcolor = 9];\n";
+
+                foreach (KeyValuePair<string, Cerradura> estado in Cerraduras)
+                {
+                    if (estado.Value.Elementos.Contains(estructura.GetLast()))
+                    {
+                        estado.Value.Aceptacion = true;
+                    }
+                    estado.Value.Graficar(estado.Key, ref CadenaGraphviz);
+                }
+                CadenaGraphviz += "}";
+                Graficador graficadorAFD = new Graficador("AFD_" + id);
+                //Creacion de archivos.
+                graficadorAFD.graficar(CadenaGraphviz);
             }
-            catch (ArgumentNullException)
+            catch (NullReferenceException)
             {
                 //Error sintactico. Manejado en Estructura.
             }
@@ -363,37 +475,37 @@ namespace _OLC1_Proyecto1_201800714
          *              Puede llegarse a llamar recursivamente si llama al metodo Estructura_P ya que quiere decir que 
          *              espera a otra Estructura que proviene de un operador (ver gramatica).
          */
-        public Estructura Estructura()
+        public Estructura Estructura(ref LinkedList<String> terminals)
         {
             if (Comparador(Token.Tipo.S_PUNTO))
             {
                 Parea(Token.Tipo.S_PUNTO);
-                And and = new And(Estructura_P(), Estructura_P());
+                And and = new And(Estructura_P(ref terminals), Estructura_P(ref terminals));
                 return and;
             }
             else if (Comparador(Token.Tipo.S_PLECA))
             {
                 Parea(Token.Tipo.S_PLECA);
-                Or or = new Or(Estructura_P(), Estructura_P());
+                Or or = new Or(Estructura_P(ref terminals), Estructura_P(ref terminals));
                 return or;
             }
             else if (Comparador(Token.Tipo.S_INTERROGACION))
             {
                 Parea(Token.Tipo.S_INTERROGACION);
-                Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "");
-                Or interrogacion = new Or(Estructura_P(), epsilon);
+                Terminal epsilon = new Terminal(Terminal.Tipo.EPSILON, "ε");
+                Or interrogacion = new Or(Estructura_P(ref terminals), epsilon);
                 return interrogacion;
             }
             else if (Comparador(Token.Tipo.S_ASTERISCO))
             {
                 Parea(Token.Tipo.S_ASTERISCO);
-                Kleen kleen = new Kleen(Estructura_P());
+                Kleen kleen = new Kleen(Estructura_P(ref terminals));
                 return kleen;
             }
             else if (Comparador(Token.Tipo.S_SUMA))
             {
                 Parea(Token.Tipo.S_SUMA);
-                Estructura estructura = Estructura_P();
+                Estructura estructura = Estructura_P(ref terminals);
                 Kleen kleen = new Kleen(estructura);
                 And suma = new And(estructura, kleen);
                 return suma;
@@ -410,12 +522,17 @@ namespace _OLC1_Proyecto1_201800714
         /*  Estructura_P:
          * 
          */
-        public Estructura Estructura_P()
+        public Estructura Estructura_P(ref LinkedList<String> terminals)
         {
             if (Comparador(Token.Tipo.S_LLAVE_IZQ))
             {
                 Parea(Token.Tipo.S_LLAVE_IZQ);
                 Terminal id = new Terminal(Terminal.Tipo.ID, tokenActual.GetValor());
+
+                if (!terminals.Contains(id.GetValor()))
+                {
+                    terminals.AddLast(id.GetValor());
+                }
                 Parea(Token.Tipo.ID);
                 Parea(Token.Tipo.S_LLAVE_DER);
                 return id;
@@ -423,24 +540,36 @@ namespace _OLC1_Proyecto1_201800714
             else if (Comparador(Token.Tipo.CADENA))
             {
                 Terminal cadena = new Terminal(Terminal.Tipo.CADENA, tokenActual.GetValor());
+                if (!terminals.Contains(cadena.GetValor()))
+                {
+                    terminals.AddLast(cadena.GetValor());
+                }
                 Parea(Token.Tipo.CADENA);
                 return cadena;
             }
             else if (Comparador(Token.Tipo.CARACTER_ESPECIAL))
             {
                 Terminal c_especial = new Terminal(Terminal.Tipo.CARACTER_ESPECIAL, tokenActual.GetValor());
+                if (!terminals.Contains(c_especial.GetValor()))
+                {
+                    terminals.AddLast(c_especial.GetValor());
+                }
                 Parea(Token.Tipo.CARACTER_ESPECIAL);
                 return c_especial;
             }
             else if (Comparador(Token.Tipo.C_TODO))
             {
                 Terminal c_todo = new Terminal(Terminal.Tipo.C_TODO, tokenActual.GetValor());
+                if (!terminals.Contains(c_todo.GetValor()))
+                {
+                    terminals.AddLast(c_todo.GetValor());
+                }
                 Parea(Token.Tipo.C_TODO);
                 return c_todo;
             }
             else if (Comparador(Token.Tipo.S_PUNTO) || Comparador(Token.Tipo.S_PLECA) || Comparador(Token.Tipo.S_INTERROGACION) || Comparador(Token.Tipo.S_ASTERISCO) || Comparador(Token.Tipo.S_SUMA))
             {
-                return Estructura();
+                return Estructura(ref terminals);
             }
             else
             {

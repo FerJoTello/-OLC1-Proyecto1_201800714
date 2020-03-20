@@ -69,12 +69,19 @@ namespace _OLC1_Proyecto1_201800714
                 Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
                 if (a)
                 {
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = "Archivos ER | *.er";
-                    saveFileDialog.ShowDialog();
-                    String ruta = saveFileDialog.FileName;
-                    String contenido = item.Text;
-                    File.WriteAllText(ruta, contenido);
+                    try
+                    {
+                        SaveFileDialog saveFileDialog = new SaveFileDialog();
+                        saveFileDialog.Filter = "Archivos ER | *.er";
+                        saveFileDialog.ShowDialog();
+                        String ruta = saveFileDialog.FileName;
+                        String contenido = item.Text;
+                        File.WriteAllText(ruta, contenido);
+                    }
+                    catch (ArgumentException)
+                    {
+
+                    }
                 }
             }
         }

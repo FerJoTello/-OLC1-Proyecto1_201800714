@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AnalizadorER.cs" />
     <Compile Include="AnalizadorLexico.cs" />
+    <Compile Include="Cerradura.cs" />
     <Compile Include="Conjunto.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
