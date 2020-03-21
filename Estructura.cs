@@ -285,6 +285,15 @@ namespace _OLC1_Proyecto1_201800714
             return null;
         }
     }
+    /*  Terminal:   Utilizado para guardar los valores con los cuales se hacen transiciones entre estados.
+     *  
+     *  Atributos:  ->  TipoTerminal:   Indica el tipo de terminal con el que se trabaja (id, cadena, c_especial, c_todo, epsilon).
+     *              ->  Representacion: Nombre del terminal utilizado para representar graficamente (diagramas de estados) a las transiciones entre nodos.
+     *              ->  ValorReal:      Es el mismo lexema que se recupera del analisis sintactico con el fin de relacionar a las transiciones.
+     *              ->  ListaValores:   Los valores con los que realment hacen transicion para alcanzar otro Estado (utilizado para validar lexemas).
+     *                                  Contiene como primer valor a su Representacion, con el fin de simplificar las iteraciones. !!TEMPORAL!! (podria no tenerla)
+     * 
+     */
     public class Terminal : Estructura
     {
         public enum Tipo
@@ -296,28 +305,36 @@ namespace _OLC1_Proyecto1_201800714
             EPSILON
         }
         Terminal.Tipo TipoTerminal;
-        string Valor;
+        string Representacion;
+        string ValorReal;
+        public LinkedList<string> ListaValores;
         public Terminal(Terminal.Tipo tipo, string val)
         {
             TipoTerminal = tipo;
-            Valor = val;
+            ValorReal = val;
+            Representacion = val;
             if (tipo == Terminal.Tipo.CADENA)
             {
-                Valor = Valor.Insert(0, "\\");
-                Valor = Valor.Insert(Valor.Length - 1, "\\");
+                Representacion = Representacion.Insert(0, "\\");
+                Representacion = Representacion.Insert(Representacion.Length - 1, "\\");
             }
             else if (tipo == Terminal.Tipo.CARACTER_ESPECIAL)
             {
-                Valor = Valor.Insert(0, "\\");
-                if (Valor.Equals("\\\\\""))
+                Representacion = Representacion.Insert(0, "\\");
+                if (Representacion.Equals("\\\\\""))
                 {
-                    Valor = Valor.Insert(0, "\\");
+                    Representacion = Representacion.Insert(0, "\\");
                 }
             }
+            //ListaValores.AddFirst(Representacion);
         }
-        public string GetValor()
+        public string GetRepresentacion()
         {
-            return Valor;
+            return Representacion;
+        }
+        public string GetValorReal()
+        {
+            return ValorReal;
         }
         public Terminal.Tipo GetTipoTerminal()
         {
@@ -358,7 +375,7 @@ namespace _OLC1_Proyecto1_201800714
                     {
                         this.Cerradura.AddLast(nodoDestino);
                     }
-                    cadenaGraphviz += "\tn" + Numero + "->n" + nodoDestino.Numero + "[label = \"" + terminal.GetValor() + "\"];\n";
+                    cadenaGraphviz += "\tn" + Numero + "->n" + nodoDestino.Numero + "[label = \"" + terminal.GetRepresentacion() + "\"];\n";
                     transicion.Graficado = true;
                     transicion.NodoDestino.Graficar(ref cadenaGraphviz);
                 }
@@ -423,7 +440,7 @@ namespace _OLC1_Proyecto1_201800714
         {
             foreach (Transicion transicion in this.Transiciones)
             {
-                if (transicion.Terminal.GetValor().Equals(terminal))
+                if (transicion.Terminal.GetRepresentacion().Equals(terminal))
                 {
                     mover.AddLast(transicion.NodoDestino);
                 }

@@ -322,23 +322,13 @@ namespace _OLC1_Proyecto1_201800714
             try
             {
                 //Se crea una ListaTerminales que se va llenando conforme se encuentra un terminal en Estructura_P.
-                LinkedList<String> ListaTerminales = new LinkedList<String>();
+                //Se crea una ListaTerminales que contiene las transiciones con el valor real para que se pueda alcanzar cierto estado.
+                LinkedList<Terminal> ListaTerminales = new LinkedList<Terminal>();
                 //Se crea un ListaNodos que se va llenando conforme se realiza el AFN.
                 LinkedList<Nodo> ListaNodos = new LinkedList<Nodo>();
                 //Se crea un nuevo objeto estructura.
                 Estructura estructura = Estructura(ref ListaTerminales);
                 Parea(Token.Tipo.S_PUNTO_Y_COMA);
-                //Se vincula el objeto estructura a un objeto simbolo que se agrega a la tablaSimbolos.
-                Simbolo simbolo = new Simbolo(id, "Estructura", estructura);
-                //Es agregado el nuevo simbolo con su 'key' que es utilizado para evitar variables con el mismo nombre.
-                try
-                {
-                    tablaSimbolos.Add(id, simbolo);
-                }
-                catch (ArgumentException)
-                {
-                    Console.WriteLine("Ya existe un objeto con ID = " + id);
-                }
                 /***************************************************** AFN *****************************************************/
                 int n = 0;
                 //Creacion de nodos y sus transiciones.
@@ -363,27 +353,29 @@ namespace _OLC1_Proyecto1_201800714
                 //A
                 LinkedList<Nodo> c0 = new LinkedList<Nodo>(First.ObtenerCerraduras().OrderBy(nodo => nodo.Numero));
                 Cerradura Cerradura0 = new Cerradura(c0);
-                Dictionary<string, Cerradura> Cerraduras = new Dictionary<string, Cerradura>();
-                Cerraduras.Add("n" + contadorCerraduras++, Cerradura0);
+                Cerradura0.Estado = "n" + contadorCerraduras++;
+                LinkedList<Cerradura> Cerraduras = new LinkedList<Cerradura>();
+                Cerraduras.AddLast(Cerradura0);
                 bool nuevaEntrada;
                 //Creacion de Estados y sus transiciones.
                 do
                 {
                     Console.WriteLine("Sexo");
                     nuevaEntrada = false;
-                    Dictionary<string, Cerradura> auxiliar = new Dictionary<string, Cerradura>(Cerraduras);
-                    foreach (KeyValuePair<string, Cerradura> cerradura in Cerraduras)
+                    //Dictionary<string, Cerradura> auxiliar = new Dictionary<string, Cerradura>(Cerraduras);
+                    LinkedList<Cerradura> auxiliar = new LinkedList<Cerradura>(Cerraduras);
+                    foreach (Cerradura cerradura in Cerraduras)
                     {
-                        if (!cerradura.Value.Evaluado)
+                        if (!cerradura.Evaluado)
                         {
                             //a (terminal con el que se trabaja Mover).
-                            foreach (String terminal in ListaTerminales)
+                            foreach (Terminal terminal in ListaTerminales)
                             {
                                 //M(A,a) (mover).
                                 LinkedList<Nodo> Mover = new LinkedList<Nodo>();
-                                foreach (Nodo elementoCerradura in cerradura.Value.Elementos)
+                                foreach (Nodo elementoCerradura in cerradura.Elementos)
                                 {
-                                    elementoCerradura.ObtenerMover(ref Mover, terminal);
+                                    elementoCerradura.ObtenerMover(ref Mover, terminal.GetRepresentacion());
                                 }
                                 if (Mover.Count != 0)
                                 {
@@ -396,16 +388,16 @@ namespace _OLC1_Proyecto1_201800714
                                     cm = new LinkedList<Nodo>(cm.OrderBy(nodo => nodo.Numero));
                                     bool existe = false;
                                     //Recorre el diccionario revisando si ya existe un estado igual para agregar la nueva transición.
-                                    foreach (KeyValuePair<string, Cerradura> kvp in auxiliar)
+                                    int tamano = cm.Count;
+                                    foreach (Cerradura estado in auxiliar)
                                     {
-                                        int tamano = cm.Count;
                                         bool iguales = false;
-                                        if (kvp.Value.Elementos.Count == cm.Count)
+                                        if (estado.Elementos.Count == cm.Count)
                                         {
                                             iguales = true;
                                             for (int i = 0; i < tamano; i++)
                                             {
-                                                if (kvp.Value.Elementos.ElementAt(i).Numero != cm.ElementAt(i).Numero)
+                                                if (estado.Elementos.ElementAt(i).Numero != cm.ElementAt(i).Numero)
                                                 {
                                                     existe = false;
                                                     iguales = false;
@@ -414,34 +406,26 @@ namespace _OLC1_Proyecto1_201800714
                                             }
                                             if (iguales)
                                             {
-                                                TransicionC transicion = new TransicionC(terminal, cerradura.Key);
-                                                kvp.Value.ListaTransiciones.AddLast(transicion);
+                                                TransicionC transicion = new TransicionC(terminal, estado);
+                                                cerradura.ListaTransiciones.AddLast(transicion);
                                                 existe = true;
                                                 break;
                                             }
                                         }
-                                        /*
-                                        if (kvp.Value.Elementos.Equals(cm))
-                                        {
-                                            TransicionC transicion = new TransicionC(terminal, cerradura.Key);
-                                            kvp.Value.ListaTransiciones.AddLast(transicion);
-                                            existe = true;
-                                            break;
-                                        }
-                                        */
                                     }
-                                    //Si no existe ese estado, se crea y se agrega al diccionario auxiliar.
+                                    //Si no existe ese estado, se crea y se agrega a la lista de cerraduras auxiliar.
                                     if (!existe)
                                     {
                                         Cerradura CerraduraMover = new Cerradura(cm);
-                                        TransicionC transicion = new TransicionC(terminal, cerradura.Key);
-                                        CerraduraMover.ListaTransiciones.AddLast(transicion);
-                                        auxiliar.Add("n" + contadorCerraduras++, CerraduraMover);
+                                        CerraduraMover.Estado = "n" + contadorCerraduras++;
+                                        auxiliar.AddLast(CerraduraMover);
+                                        TransicionC transicion = new TransicionC(terminal, CerraduraMover);
+                                        cerradura.ListaTransiciones.AddLast(transicion);
                                         nuevaEntrada = true;
                                     }
                                 }
                             }
-                            cerradura.Value.Evaluado = true;
+                            cerradura.Evaluado = true;
                         }
                     }
                     Cerraduras = auxiliar;
@@ -452,19 +436,29 @@ namespace _OLC1_Proyecto1_201800714
                     "\tnode [shape = circle, fontsize = 10; colorscheme = pubu9, style = filled, fillcolor = 5, color = 6, fontcolor = 1];\n" +
                     "\tI [fontsize = 1; style = filled fillcolor=white,  fontcolor = white, color = white];\n" +
                     "\tI->n0[label = Io, colorscheme = pubu9, color = 9, fontcolor = 9];\n";
-
-                foreach (KeyValuePair<string, Cerradura> estado in Cerraduras)
+                foreach (Cerradura estado in Cerraduras)
                 {
-                    if (estado.Value.Elementos.Contains(estructura.GetLast()))
+                    if (estado.Elementos.Contains(estructura.GetLast()))
                     {
-                        estado.Value.Aceptacion = true;
+                        estado.Aceptacion = true;
                     }
-                    estado.Value.Graficar(estado.Key, ref CadenaGraphviz);
+                    estado.Graficar(ref CadenaGraphviz);
                 }
                 CadenaGraphviz += "}";
                 Graficador graficadorAFD = new Graficador("AFD_" + id);
                 //Creacion de archivos.
                 graficadorAFD.graficar(CadenaGraphviz);
+                //Se vincula el objeto Cerradura a un objeto simbolo que se agrega a la tablaSimbolos.
+                Simbolo simbolo = new Simbolo(id, "Estado", Cerraduras.ElementAt(0));
+                //Es agregado el nuevo simbolo con su 'key' que es utilizado para evitar variables con el mismo nombre.
+                try
+                {
+                    tablaSimbolos.Add(id, simbolo);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("Ya existe un objeto con ID = " + id);
+                }
             }
             catch (NullReferenceException)
             {
@@ -475,7 +469,7 @@ namespace _OLC1_Proyecto1_201800714
          *              Puede llegarse a llamar recursivamente si llama al metodo Estructura_P ya que quiere decir que 
          *              espera a otra Estructura que proviene de un operador (ver gramatica).
          */
-        public Estructura Estructura(ref LinkedList<String> terminals)
+        public Estructura Estructura(ref LinkedList<Terminal> terminals)
         {
             if (Comparador(Token.Tipo.S_PUNTO))
             {
@@ -522,16 +516,26 @@ namespace _OLC1_Proyecto1_201800714
         /*  Estructura_P:
          * 
          */
-        public Estructura Estructura_P(ref LinkedList<String> terminals)
+        public Estructura Estructura_P(ref LinkedList<Terminal> terminals)
         {
             if (Comparador(Token.Tipo.S_LLAVE_IZQ))
             {
                 Parea(Token.Tipo.S_LLAVE_IZQ);
                 Terminal id = new Terminal(Terminal.Tipo.ID, tokenActual.GetValor());
-
-                if (!terminals.Contains(id.GetValor()))
+                bool existe = this.ComprobarExistenciaEnLista(terminals, id);
+                if (!existe)
                 {
-                    terminals.AddLast(id.GetValor());
+                    try
+                    {   //Revisa en la tabla de simbolos si existe un conjunto con el id solicitado y añade los elementos del conjunto a su lista de valores.
+                        Simbolo simbolo = tablaSimbolos[tokenActual.GetValor()];
+                        Conjunto conjunto = (Conjunto)simbolo.GetValor();
+                        id.ListaValores = new LinkedList<string>(conjunto.GetElementos());
+                        terminals.AddLast(id);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        //No se pudo obtener el conjunto de la tabla de simbolos, asi que no se guarda el Terminal en la lista de Terminales para la validacion.
+                    }
                 }
                 Parea(Token.Tipo.ID);
                 Parea(Token.Tipo.S_LLAVE_DER);
@@ -540,9 +544,10 @@ namespace _OLC1_Proyecto1_201800714
             else if (Comparador(Token.Tipo.CADENA))
             {
                 Terminal cadena = new Terminal(Terminal.Tipo.CADENA, tokenActual.GetValor());
-                if (!terminals.Contains(cadena.GetValor()))
+                bool existe = this.ComprobarExistenciaEnLista(terminals, cadena);
+                if (!existe)
                 {
-                    terminals.AddLast(cadena.GetValor());
+                    terminals.AddLast(cadena);
                 }
                 Parea(Token.Tipo.CADENA);
                 return cadena;
@@ -550,9 +555,10 @@ namespace _OLC1_Proyecto1_201800714
             else if (Comparador(Token.Tipo.CARACTER_ESPECIAL))
             {
                 Terminal c_especial = new Terminal(Terminal.Tipo.CARACTER_ESPECIAL, tokenActual.GetValor());
-                if (!terminals.Contains(c_especial.GetValor()))
+                bool existe = this.ComprobarExistenciaEnLista(terminals, c_especial);
+                if (!existe)
                 {
-                    terminals.AddLast(c_especial.GetValor());
+                    terminals.AddLast(c_especial);
                 }
                 Parea(Token.Tipo.CARACTER_ESPECIAL);
                 return c_especial;
@@ -560,9 +566,10 @@ namespace _OLC1_Proyecto1_201800714
             else if (Comparador(Token.Tipo.C_TODO))
             {
                 Terminal c_todo = new Terminal(Terminal.Tipo.C_TODO, tokenActual.GetValor());
-                if (!terminals.Contains(c_todo.GetValor()))
+                bool existe = this.ComprobarExistenciaEnLista(terminals, c_todo);
+                if (!existe)
                 {
-                    terminals.AddLast(c_todo.GetValor());
+                    terminals.AddLast(c_todo);
                 }
                 Parea(Token.Tipo.C_TODO);
                 return c_todo;
@@ -580,6 +587,20 @@ namespace _OLC1_Proyecto1_201800714
                 return null;
             }
         }
+        /*  ComprobarExistenciaEnLista: Método que devuelve un booleano indicando si un terminal pertenece a la lista de terminales.
+         */
+        private Boolean ComprobarExistenciaEnLista(LinkedList<Terminal> terminals, Terminal term)
+        {
+            foreach (Terminal terminal in terminals)
+            {
+                if (terminal.GetValorReal().Equals(term.GetValorReal()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void Validacion_ER(string id)
         {
             Parea(Token.Tipo.S_DOS_PUNTOS);
@@ -587,6 +608,21 @@ namespace _OLC1_Proyecto1_201800714
             Parea(Token.Tipo.CADENA);
             Parea(Token.Tipo.S_PUNTO_Y_COMA);
             //Aqui continua la validacion del lexema.
+            consola += "**Evaluando Expresion Regular: " + id + "**\n";
+            try
+            {
+                Simbolo simbolo = tablaSimbolos[id];    //Posible Exception.
+                if (!simbolo.GetTipo().Equals("Estado"))
+                {
+                    throw new KeyNotFoundException();   //Como no es compatible el tipo entonces no se puede trabajar con él. Se manda Exception.
+                }
+                Cerradura estado = (Cerradura)simbolo.GetValor();
+
+            }
+            catch (KeyNotFoundException)
+            {
+                consola += "No se pudo validar lexema, no se encontró su expresión regular\n**Fin evaluacion**\n";
+            }
         }
     }
 }

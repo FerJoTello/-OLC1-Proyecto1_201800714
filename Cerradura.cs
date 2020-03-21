@@ -9,12 +9,14 @@ namespace _OLC1_Proyecto1_201800714
     /*  Cerradura:  Objeto que se almacena en un Dictionary con el fin de llevar un mejor control de los conjuntos Cerradura.
      *              Posteriormente se utiliza como un Estado (nodo gráfico) del AFD.
      *  
-     *  Atributos   ->  Elementos:          Lista de nodos que forman el conjunto de cerradura.
+     *  Atributos:  ->  Estado:             Nombre del estado del AFD.   
+     *              ->  Elementos:          Lista de nodos que forman el conjunto de cerradura.
      *              ->  Evaluado:           Bandera booleana que indica si el objeto ya pasó por las iteraciones del Método de Thompson. 
      *              ->  ListaTransiciones:  Contiene las transiciones que hacen llegar a este Estado.
      */
     class Cerradura
     {
+        public String Estado;
         public LinkedList<Nodo> Elementos;
         public Boolean Evaluado, Aceptacion;
         public LinkedList<TransicionC> ListaTransiciones;
@@ -25,21 +27,20 @@ namespace _OLC1_Proyecto1_201800714
             Aceptacion = false;
             ListaTransiciones = new LinkedList<TransicionC>();
         }
-        public void Graficar(string idNodo, ref string cadenaGraphviz)
+        public void Graficar(ref string cadenaGraphviz)
         {
             foreach (TransicionC transicion in ListaTransiciones)
             {
                 if (!transicion.Graficado)
                 {
-                    string idPrevio = transicion.EstadoPrevio;
-                    string terminal = transicion.Terminal;
-                    cadenaGraphviz += "\t" + idPrevio + "->" + idNodo + "[label = \"" + terminal + "\", colorscheme = pubu9, color = 9, fontcolor = 9];\n";
-                    if (Aceptacion)
-                    {
-                        cadenaGraphviz += "\t" + idNodo + "[shape = doublecircle];\n";
-                    }
-
+                    string idNext = transicion.EstadoSiguiente.Estado;
+                    string terminal = transicion.Terminal.GetRepresentacion();
+                    cadenaGraphviz += "\t" + this.Estado + "->" + idNext + "[label = \"" + terminal + "\", colorscheme = pubu9, color = 9, fontcolor = 9];\n";
                 }
+            }
+            if (Aceptacion)
+            {
+                cadenaGraphviz += "\t" + this.Estado + "[shape = doublecircle];\n";
             }
         }
     }
@@ -50,13 +51,13 @@ namespace _OLC1_Proyecto1_201800714
      */
     class TransicionC
     {
-        public String Terminal;
-        public String EstadoPrevio;
+        public Terminal Terminal;
+        public Cerradura EstadoSiguiente;
         public Boolean Graficado;
-        public TransicionC(String terminal, String previo)
+        public TransicionC(Terminal terminal, Cerradura next)
         {
             Terminal = terminal;
-            EstadoPrevio = previo;
+            EstadoSiguiente = next;
             Graficado = false;
         }
 
