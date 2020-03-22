@@ -97,6 +97,7 @@ namespace _OLC1_Proyecto1_201800714
         private void button1_Click(object sender, EventArgs e)
         {
             String entrada;
+            
             foreach (Control item in this.tabControl1.SelectedTab.Controls)
             {
                 Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
@@ -112,9 +113,17 @@ namespace _OLC1_Proyecto1_201800714
                     richTextBox1.Text += "**Finaliza Análisis Léxico**\n";
                     AnalizadorER analizadorER = new AnalizadorER();
                     richTextBox1.Text += "**Inicia Análisis Sintáctico**\n";
-                    analizadorER.Parsear(listaTokens);
+                    if (listaTokens.Count > 0)
+                    {
+                        analizadorER.Parsear(listaTokens);
+                    }
+                    else
+                    {
+                        richTextBox1.Text += "El analisis lexico no devolvió ningún token. No se iniciar análsis sintáctico";
+                    }
                     if (!analizadorER.existenciaError)
                     {
+                        richTextBox1.Text += analizadorER.consola;
                         richTextBox1.Text += "*SIN ERRORES SINTACTICOS*\n**Finaliza Análisis Sintáctico**\n";
                     }
                     else

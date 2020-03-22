@@ -43,6 +43,134 @@ namespace _OLC1_Proyecto1_201800714
                 cadenaGraphviz += "\t" + this.Estado + "[shape = doublecircle];\n";
             }
         }
+        public bool Validar(string lexema, ref int contador)
+        {
+            if (contador < lexema.Length)
+            {
+                foreach (TransicionC transicion in this.ListaTransiciones)
+                {
+                    if (transicion.Terminal.GetTipoTerminal() == Terminal.Tipo.ID)
+                    {
+                        foreach (string elemento in transicion.Terminal.ListaValores)
+                        {
+                            try
+                            {
+                                string auxiliar = elemento;
+                                if (auxiliar.Equals("\\t"))
+                                {
+                                    auxiliar = "\t";
+                                }
+                                else if (auxiliar.Equals("\\n"))
+                                {
+                                    auxiliar = "\n";
+                                }
+                                else if (auxiliar.Equals("\\'"))
+                                {
+                                    auxiliar = "\'";
+                                }
+                                else if (auxiliar.Equals("\\\""))
+                                {
+                                    auxiliar = "\"";
+                                }
+                                if (auxiliar.Equals(lexema.Substring(contador, auxiliar.Length)))
+                                {
+                                    contador += auxiliar.Length;
+                                    return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                                }
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                //No hace nada ya que si lanza esta exception quiere decir que simplemente no es una transicion valida.
+                                //Así que prueba con otro.
+                            }
+                        }
+                    }
+                    else if (transicion.Terminal.GetTipoTerminal() == Terminal.Tipo.CADENA)
+                    {
+                        string elemento = transicion.Terminal.GetValorReal();
+                        try
+                        {
+                            elemento = elemento.Remove(0, 1);
+                            elemento = elemento.Remove(elemento.Length - 1, 1);
+                            if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
+                            {
+                                contador += elemento.Length;
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                            }
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            //No hace nada ya que si lanza esta exception quiere decir que simplemente no es una transicion valida.
+                            //Así que prueba con otro.
+                        }
+                    }
+                    else if (transicion.Terminal.GetTipoTerminal() == Terminal.Tipo.CARACTER_ESPECIAL)
+                    {
+                        string elemento = "";
+                        try
+                        {
+                            if (transicion.Terminal.GetValorReal().Equals("\\t"))
+                            {
+                                elemento = "\t";
+                            }
+                            else if (transicion.Terminal.GetValorReal().Equals("\\n"))
+                            {
+                                elemento = "\n";
+                            }
+                            else if (transicion.Terminal.GetValorReal().Equals("\\'"))
+                            {
+                                elemento = "\'";
+                            }
+                            else if (transicion.Terminal.GetValorReal().Equals("\\\""))
+                            {
+                                elemento = "\"";
+                            }
+                            if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
+                            {
+                                contador += elemento.Length;
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                            }
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            //No hace nada ya que si lanza esta exception quiere decir que simplemente no es una transicion valida.
+                            //Así que prueba con otro.
+                        }
+                    }
+                    else if (transicion.Terminal.GetTipoTerminal() == Terminal.Tipo.C_TODO)
+                    {
+                        string elemento = transicion.Terminal.GetValorReal();
+                        try
+                        {
+                            elemento = elemento.Remove(0, 2);
+                            elemento = elemento.Remove(elemento.Length - 2, 2);
+                            if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
+                            {
+                                contador += elemento.Length;
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                            }
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            //No hace nada ya que si lanza esta exception quiere decir que simplemente no es una transicion valida.
+                            //Así que prueba con otro.
+                        }
+                    }
+                }
+                Console.WriteLine("Error en la validación. El lexema no es valido según, su expresión regular.");
+                return false;
+            }
+            else if (contador == lexema.Length)
+            {
+                return Aceptacion;
+            }
+            else
+            {
+                //si el contador es mayor al lexema.
+                Console.WriteLine("Algo pasó, no debería de entrar aquí");
+                return false;
+            }
+        }
     }
     /*  TransicionC:    Objeto utilizado para indicar las transiciones que contiene un estado guardando un terminal y su Estado previo.
      * 

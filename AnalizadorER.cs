@@ -8,7 +8,7 @@ namespace _OLC1_Proyecto1_201800714
 {
     class AnalizadorER
     {
-        /**
+        /*  Atributos
             controlToken: indica el indice de la lista de tokens con el que se esta trabajando.
             tokenActual: variable de la lista que se obtiene a partir de controlToken.
             listaTokens: tokens del analisis lexico.
@@ -24,7 +24,7 @@ namespace _OLC1_Proyecto1_201800714
         public string consola;
         public bool existenciaError = false;
         bool errorSintactico = false;
-        /*
+        /*  GRAMATICA
         <INICIO>::=<LISTA_INSTRUCCIONES>
         <LISTA_INSTRUCCIONES>::=<DECLARACION_CONJ> <LISTA_INSTRUCCIONES> 							
                             |	ID <LISTA_INSTRUCCIONES'>								
@@ -53,9 +53,6 @@ namespace _OLC1_Proyecto1_201800714
                             |	<ESTRUCTURA>
         <VALIDACION_ER>::=		S_DOS_PUNTOS CADENA S_PUNTO_Y_COMA
         */
-        //primero: hacer el parea. con una bandera booleana que indique si hay error sintactico
-        //segundo: durante el parea. crear una tabla de simbolos para conjuntos y las ER
-        //tercero: bajo la misma estructura de la gramatica se llamara recursivamente a los elementos de la ER para poder generar sus AFND y AFD para luego validarlos.
         /* Comparador:
          * Verifica que el tokenActual sea del mismo tipo que se solicita. (Se usa en 'Primeros' y con ello se elige una alternativa dependiendo la produccion de la gramatica)
          */
@@ -63,9 +60,6 @@ namespace _OLC1_Proyecto1_201800714
         {
             return tokenActual.GetTipo() == tipo;
         }
-
-
-
 
         /**
         *  Parea:
@@ -605,6 +599,8 @@ namespace _OLC1_Proyecto1_201800714
         {
             Parea(Token.Tipo.S_DOS_PUNTOS);
             string lexema = tokenActual.GetValor();
+            lexema = lexema.Remove(0, 1);
+            lexema = lexema.Remove(lexema.Length - 1, 1);
             Parea(Token.Tipo.CADENA);
             Parea(Token.Tipo.S_PUNTO_Y_COMA);
             //Aqui continua la validacion del lexema.
@@ -617,11 +613,19 @@ namespace _OLC1_Proyecto1_201800714
                     throw new KeyNotFoundException();   //Como no es compatible el tipo entonces no se puede trabajar con él. Se manda Exception.
                 }
                 Cerradura estado = (Cerradura)simbolo.GetValor();
-
+                int contador = 0;
+                if (estado.Validar(lexema, ref contador))
+                {
+                    consola += "El lexema: \"" + lexema + "\", es válido para el conjunto: " + id + "\n";
+                }
+                else
+                {
+                    consola += "El lexema: \"" + lexema + "\", no es válido para el conjunto: " + id + "\n";
+                }
             }
             catch (KeyNotFoundException)
             {
-                consola += "No se pudo validar lexema, no se encontró su expresión regular\n**Fin evaluacion**\n";
+                consola += "No se pudo validar el lexema: " + lexema + ", no se encontró su expresión regular\n**Fin evaluacion**\n";
             }
         }
     }
