@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iTextSharp.text.pdf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,6 +42,25 @@ namespace _OLC1_Proyecto1_201800714
             if (Aceptacion)
             {
                 cadenaGraphviz += "\t" + this.Estado + "[shape = doublecircle];\n";
+            }
+        }
+        public void Tablear(ref PdfPTable tabla, LinkedList<Terminal> ListaTerminales)
+        {
+            foreach (Terminal terminal in ListaTerminales)
+            {
+                bool exito = false;
+                foreach (TransicionC transicion in this.ListaTransiciones)
+                {
+                    if (transicion.Terminal.GetRepresentacion().Equals(terminal.GetRepresentacion()))
+                    {
+                        tabla.AddCell(transicion.EstadoSiguiente.Estado);
+                        exito = true;
+                    }
+                }
+                if (!exito)
+                {
+                    tabla.AddCell("");
+                }
             }
         }
         public bool Validar(string lexema, ref int contador)

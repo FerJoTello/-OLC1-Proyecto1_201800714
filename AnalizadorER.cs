@@ -1,8 +1,11 @@
-﻿using System;
+﻿using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace _OLC1_Proyecto1_201800714
 {
@@ -17,6 +20,7 @@ namespace _OLC1_Proyecto1_201800714
             errorSintactico: bandera booleana que sirve para indicar a este objeto si existe un error (ver Parea).
             consola: texto que se genera para mostrar al usuario sobre los posibles errores sintacticos.
         */
+        public LinkedList<string> RutasImagenes = new LinkedList<string>();
         int controlToken;
         Token tokenActual;
         LinkedList<Token> listaTokens;
@@ -341,7 +345,7 @@ namespace _OLC1_Proyecto1_201800714
                     "}";
                 Graficador graficadorAFN = new Graficador("AFN_" + id);
                 //Creacion de archivos.
-                graficadorAFN.graficar(CadenaGraphviz);
+                RutasImagenes.AddLast(graficadorAFN.graficar(CadenaGraphviz));
                 /***************************************************** AFD *****************************************************/
                 int contadorCerraduras = 0;
                 //A
@@ -430,18 +434,46 @@ namespace _OLC1_Proyecto1_201800714
                     "\tnode [shape = circle, fontsize = 10; colorscheme = pubu9, style = filled, fillcolor = 5, color = 6, fontcolor = 1];\n" +
                     "\tI [fontsize = 1; style = filled fillcolor=white,  fontcolor = white, color = white];\n" +
                     "\tI->n0[label = Io, colorscheme = pubu9, color = 9, fontcolor = 9];\n";
+                //Tablas
+                String ruta = Path.GetDirectoryName(Application.ExecutablePath);
+                string carpeta = ruta + "\\Tablas";
+                if (!Directory.Exists(carpeta))
+                {
+                    Directory.CreateDirectory(carpeta);
+                }
+                ruta = carpeta;
+                ruta += "\\Transiciones_" + id + ".pdf";
+                Document document = new Document(PageSize.LETTER, 10, 10, 10, 10);
+                PdfWriter pw = PdfWriter.GetInstance(document, new FileStream(ruta, FileMode.Create));
+                document.Open();
+                Paragraph encabezado = new Paragraph("Tabla de transiciones de \"" + id + "\"");
+                encabezado.Alignment = Element.ALIGN_CENTER;
+                document.Add(encabezado);
+                PdfPTable tabla = new PdfPTable(ListaTerminales.Count + 1);
+                tabla.AddCell("");
+                foreach (Terminal terminal in ListaTerminales)
+                {
+                    tabla.AddCell(terminal.GetRepresentacion());
+                }
                 foreach (Cerradura estado in Cerraduras)
                 {
+                    string nombreCelda = estado.Estado;
                     if (estado.Elementos.Contains(estructura.GetLast()))
                     {
                         estado.Aceptacion = true;
+                        nombreCelda += "*";
                     }
                     estado.Graficar(ref CadenaGraphviz);
+                    tabla.AddCell(nombreCelda);
+                    estado.Tablear(ref tabla, ListaTerminales);
                 }
                 CadenaGraphviz += "}";
+                document.Add(tabla);
+                document.Close();
+                MessageBox.Show("Se ha creado un archivo mostrando la tabla de transiciones de " + id + " en:\n" + ruta + "\n");
                 Graficador graficadorAFD = new Graficador("AFD_" + id);
                 //Creacion de archivos.
-                graficadorAFD.graficar(CadenaGraphviz);
+                RutasImagenes.AddLast(graficadorAFD.graficar(CadenaGraphviz));
                 //Se vincula el objeto Cerradura a un objeto simbolo que se agrega a la tablaSimbolos.
                 Simbolo simbolo = new Simbolo(id, "Estado", Cerraduras.ElementAt(0));
                 //Es agregado el nuevo simbolo con su 'key' que es utilizado para evitar variables con el mismo nombre.

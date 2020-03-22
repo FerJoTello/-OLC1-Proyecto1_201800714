@@ -15,6 +15,8 @@ namespace _OLC1_Proyecto1_201800714
     {
         //Contador de pestañas
         private int cont_pestaña = 1;
+        private LinkedList<string> ListaImagenes = new LinkedList<string>();
+        private int imagen_actual = 0;
         public Form1()
         {
             InitializeComponent();
@@ -97,7 +99,6 @@ namespace _OLC1_Proyecto1_201800714
         private void button1_Click(object sender, EventArgs e)
         {
             String entrada;
-            
             foreach (Control item in this.tabControl1.SelectedTab.Controls)
             {
                 Boolean a = typeof(RichTextBox).IsInstanceOfType(item);
@@ -116,6 +117,18 @@ namespace _OLC1_Proyecto1_201800714
                     if (listaTokens.Count > 0)
                     {
                         analizadorER.Parsear(listaTokens);
+                        if (analizadorER.RutasImagenes.Count > 0)
+                        {
+                            ListaImagenes = analizadorER.RutasImagenes;
+                            pictureBox1.Visible = true;
+                            pictureBox1.Image = Image.FromFile(ListaImagenes.First.Value);
+                            button2.Enabled = false;
+                            button3.Enabled = false;
+                            if (ListaImagenes.Count > 1)
+                            {
+                                button3.Enabled = true;
+                            }
+                        }
                     }
                     else
                     {
@@ -131,6 +144,26 @@ namespace _OLC1_Proyecto1_201800714
                         richTextBox1.Text += analizadorER.consola;
                     }
                 }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = Image.FromFile(ListaImagenes.ElementAt(--imagen_actual));
+            if (imagen_actual == 0)
+            {
+                button2.Enabled = false;
+                button3.Enabled = true;
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = Image.FromFile(ListaImagenes.ElementAt(++imagen_actual));
+            button2.Enabled = true;
+            if (imagen_actual == ListaImagenes.Count - 1)
+            {
+                button3.Enabled = false;
             }
         }
     }
