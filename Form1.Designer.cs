@@ -112,20 +112,22 @@
             // cargarThomsonToolStripMenuItem
             // 
             this.cargarThomsonToolStripMenuItem.Name = "cargarThomsonToolStripMenuItem";
-            this.cargarThomsonToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.cargarThomsonToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.cargarThomsonToolStripMenuItem.Text = "Cargar Thomson";
             // 
             // guardarTokensToolStripMenuItem
             // 
             this.guardarTokensToolStripMenuItem.Name = "guardarTokensToolStripMenuItem";
-            this.guardarTokensToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.guardarTokensToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.guardarTokensToolStripMenuItem.Text = "Guardar Tokens";
+            this.guardarTokensToolStripMenuItem.Click += new System.EventHandler(this.guardarTokensToolStripMenuItem_Click);
             // 
             // guardarErroresToolStripMenuItem
             // 
             this.guardarErroresToolStripMenuItem.Name = "guardarErroresToolStripMenuItem";
-            this.guardarErroresToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.guardarErroresToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.guardarErroresToolStripMenuItem.Text = "Guardar Errores";
+            this.guardarErroresToolStripMenuItem.Click += new System.EventHandler(this.guardarErroresToolStripMenuItem_Click);
             // 
             // reportesToolStripMenuItem
             // 
@@ -138,8 +140,9 @@
             // erroresLéxicosToolStripMenuItem
             // 
             this.erroresLéxicosToolStripMenuItem.Name = "erroresLéxicosToolStripMenuItem";
-            this.erroresLéxicosToolStripMenuItem.Size = new System.Drawing.Size(226, 34);
+            this.erroresLéxicosToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.erroresLéxicosToolStripMenuItem.Text = "Errores léxicos";
+            this.erroresLéxicosToolStripMenuItem.Click += new System.EventHandler(this.erroresLéxicosToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -188,7 +191,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(22, 709);
+            this.button1.Location = new System.Drawing.Point(311, 707);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 72);
             this.button1.TabIndex = 4;

@@ -63,39 +63,72 @@ namespace _OLC1_Proyecto1_201800714
                 }
             }
         }
-        public bool Validar(string lexema, ref int contador)
+        public bool Validar(string lexema, ref int contador, ref int filaIncio, ref int columnaInicio, ref LinkedList<Token> tokens)
         {
             if (contador < lexema.Length)
             {
                 foreach (TransicionC transicion in this.ListaTransiciones)
                 {
+
                     if (transicion.Terminal.GetTipoTerminal() == Terminal.Tipo.ID)
                     {
                         foreach (string elemento in transicion.Terminal.ListaValores)
                         {
+                            string auxiliar = elemento;
+                            Token.Tipo tipo = Token.Tipo.INDEFINIDO;
                             try
                             {
-                                string auxiliar = elemento;
                                 if (auxiliar.Equals("\\t"))
                                 {
                                     auxiliar = "\t";
+                                    tipo = Token.Tipo.CARACTER_ESPECIAL;
                                 }
                                 else if (auxiliar.Equals("\\n"))
                                 {
                                     auxiliar = "\n";
+                                    tipo = Token.Tipo.CARACTER_ESPECIAL;
                                 }
                                 else if (auxiliar.Equals("\\'"))
                                 {
                                     auxiliar = "\'";
+                                    tipo = Token.Tipo.CARACTER_ESPECIAL;
                                 }
                                 else if (auxiliar.Equals("\\\""))
                                 {
                                     auxiliar = "\"";
+                                    tipo = Token.Tipo.CARACTER_ESPECIAL;
                                 }
+                                else if (auxiliar.Length == 1 && Char.IsLetter(auxiliar.ElementAt(0)))
+                                {
+                                    tipo = Token.Tipo.LETRA;
+                                }
+                                else if (Char.IsDigit(auxiliar.ElementAt(0)))
+                                {
+                                    tipo = Token.Tipo.NUMERO;
+                                }
+                                else if (Encoding.ASCII.GetBytes(auxiliar.ElementAt(0).ToString())[0] >= 33 && Encoding.ASCII.GetBytes(auxiliar.ElementAt(0).ToString())[0] <= 38)
+                                {
+                                    tipo = Token.Tipo.SIGNO;
+                                }
+                                else if (auxiliar.StartsWith("[:") && auxiliar.EndsWith(":]"))
+                                {
+                                    auxiliar = auxiliar.Remove(0, 2);
+                                    auxiliar = auxiliar.Remove(auxiliar.Length - 2, 2);
+                                    tipo = Token.Tipo.C_TODO;
+                                }
+                                //Si equivale el auxiliar en la cadena.
                                 if (auxiliar.Equals(lexema.Substring(contador, auxiliar.Length)))
                                 {
+                                    Token token = new Token(tipo, elemento, filaIncio, columnaInicio);
+                                    tokens.AddLast(token);
+                                    columnaInicio += auxiliar.Length;
+                                    if (auxiliar.Equals("\n"))
+                                    {
+                                        filaIncio++;
+                                        columnaInicio = 1;
+                                    }
                                     contador += auxiliar.Length;
-                                    return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                                    return transicion.EstadoSiguiente.Validar(lexema, ref contador, ref filaIncio, ref columnaInicio, ref tokens);
                                 }
                             }
                             catch (ArgumentOutOfRangeException)
@@ -114,8 +147,11 @@ namespace _OLC1_Proyecto1_201800714
                             elemento = elemento.Remove(elemento.Length - 1, 1);
                             if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
                             {
+                                Token token = new Token(Token.Tipo.CADENA, transicion.Terminal.GetValorReal(), filaIncio, columnaInicio);
+                                tokens.AddLast(token);
+                                columnaInicio += elemento.Length;
                                 contador += elemento.Length;
-                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador, ref filaIncio, ref columnaInicio, ref tokens);
                             }
                         }
                         catch (ArgumentOutOfRangeException)
@@ -147,8 +183,16 @@ namespace _OLC1_Proyecto1_201800714
                             }
                             if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
                             {
+                                Token token = new Token(Token.Tipo.CARACTER_ESPECIAL, transicion.Terminal.GetValorReal(), filaIncio, columnaInicio);
+                                tokens.AddLast(token);
+                                columnaInicio += elemento.Length;
+                                if (elemento.Equals("\n"))
+                                {
+                                    filaIncio++;
+                                    columnaInicio = 1;
+                                }
                                 contador += elemento.Length;
-                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador, ref filaIncio, ref columnaInicio, ref tokens);
                             }
                         }
                         catch (ArgumentOutOfRangeException)
@@ -166,8 +210,11 @@ namespace _OLC1_Proyecto1_201800714
                             elemento = elemento.Remove(elemento.Length - 2, 2);
                             if (elemento.Equals(lexema.Substring(contador, elemento.Length)))
                             {
+                                Token token = new Token(Token.Tipo.C_TODO, transicion.Terminal.GetValorReal(), filaIncio, columnaInicio);
+                                tokens.AddLast(token);
+                                columnaInicio += elemento.Length;
                                 contador += elemento.Length;
-                                return transicion.EstadoSiguiente.Validar(lexema, ref contador);
+                                return transicion.EstadoSiguiente.Validar(lexema, ref contador, ref filaIncio, ref columnaInicio, ref tokens);
                             }
                         }
                         catch (ArgumentOutOfRangeException)
@@ -177,6 +224,8 @@ namespace _OLC1_Proyecto1_201800714
                         }
                     }
                 }
+                Token tokenF = new Token(Token.Tipo.INDEFINIDO, lexema.Substring(contador), filaIncio, columnaInicio);
+                tokens.AddLast(tokenF);
                 Console.WriteLine("Error en la validación. El lexema no es valido según, su expresión regular.");
                 return false;
             }

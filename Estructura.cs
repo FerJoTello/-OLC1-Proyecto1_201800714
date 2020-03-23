@@ -315,6 +315,11 @@ namespace _OLC1_Proyecto1_201800714
             Representacion = val;
             if (tipo == Terminal.Tipo.CADENA)
             {
+                //Si viene "\" truena graphviz entonces se realiza un cambio para evitar este problema
+                if (val.Equals("\"\\\""))
+                {
+                    Representacion = Representacion.Insert(1, "\\");
+                }
                 Representacion = Representacion.Insert(0, "\\");
                 Representacion = Representacion.Insert(Representacion.Length - 1, "\\");
             }

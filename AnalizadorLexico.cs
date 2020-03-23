@@ -8,23 +8,29 @@ namespace _OLC1_Proyecto1_201800714
 {
     class AnalizadorLexico
     {
+        public bool existenciaError;
         //Variable que representa la lista de tokens
         private LinkedList<Token> salida;
         //Variable que representa el estado actual
         private int estado;
         //Variable que representa el lexema que actualmente se esta acumulando
         private String auxlex;
+        //Variables que indican la posicion de un token.
+        //Siendo fila y columna contadores que aumentan conforme se agrega un caracter.
+        //Y filaDeInicio y columnaDeInicio siendo el valor que se le asigna a un token cuando se agrega a la lista.
+        private int filaDeInicio = 1;
+        private int columnaDeInicio = 1;
         private int fila = 1;
         private int columna = 1;
         //Metodo que se encarga de analizar la entrada.
         public LinkedList<Token> Analizar(String entrada)
         {
+            existenciaError = false;
             //Valor de return
             salida = new LinkedList<Token>();
             estado = 0;
             auxlex = "";
             char c;
-            Console.WriteLine("******************************************");
             for (int i = 0; i < entrada.Length; i++)
             {
                 c = entrada.ElementAt(i);
@@ -35,6 +41,9 @@ namespace _OLC1_Proyecto1_201800714
                 {
                     //Estado Inicial (todos los demás son estados de aceptación)
                     case 0:
+                        //Se asigna el valor de donde inicia cada token.
+                        filaDeInicio = fila;
+                        columnaDeInicio = columna;
                         if (Char.IsLetter(c))
                         {
                             agregarCaracter(c);
@@ -87,7 +96,7 @@ namespace _OLC1_Proyecto1_201800714
                             else
                             {
                                 //Error, '-' no está definido en el lenguaje.
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                             }
                         }
                         else if (c.CompareTo(':') == 0)
@@ -159,7 +168,7 @@ namespace _OLC1_Proyecto1_201800714
                             }
                             else
                             {
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                             }
                         }
                         //caracter ESPECIAL
@@ -193,7 +202,7 @@ namespace _OLC1_Proyecto1_201800714
                             }
                             else
                             {
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                             }
                         }
                         //comentarios multiline
@@ -209,7 +218,7 @@ namespace _OLC1_Proyecto1_201800714
                             }
                             else
                             {
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                             }
                         }
                         else
@@ -231,7 +240,7 @@ namespace _OLC1_Proyecto1_201800714
                             else
                             {
                                 agregarCaracter(c);
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                             }
                         }
                         break;
@@ -266,7 +275,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -278,7 +287,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -304,7 +313,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -316,7 +325,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -328,7 +337,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -340,7 +349,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -352,7 +361,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -364,7 +373,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -376,7 +385,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -388,7 +397,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -400,7 +409,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -412,7 +421,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -434,7 +443,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else if (c.CompareTo('#') == 0 && i == entrada.Length - 1)
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                             i--;
                         }
                         break;
@@ -446,7 +455,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -472,7 +481,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -485,7 +494,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                             i--;
                         }
                         break;
@@ -497,7 +506,7 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                         }
                         i -= 1;
                         break;
@@ -518,7 +527,7 @@ namespace _OLC1_Proyecto1_201800714
                         {
                             if (c.CompareTo('#') == 0 && i == entrada.Length - 1)
                             {
-                                agregarToken(Token.Tipo.INDEFINIDO);
+                                agregarError();
                                 i--;
                             }
                             else
@@ -551,12 +560,12 @@ namespace _OLC1_Proyecto1_201800714
                         }
                         else if (c.CompareTo('\n') == 0)
                         {
+                            agregarError();
                             i--;
-                            agregarToken(Token.Tipo.INDEFINIDO);
                         }
                         else if (c.CompareTo('#') == 0 && i == entrada.Length - 1)
                         {
-                            agregarToken(Token.Tipo.INDEFINIDO);
+                            agregarError();
                             i--;
                         }
                         break;
@@ -567,9 +576,14 @@ namespace _OLC1_Proyecto1_201800714
         //Metodo que permite agregar un nuevo token a la lista de la salida del AnalizadorLexico y regresa al estado inicial para seguir analizando
         public void agregarToken(Token.Tipo tipo)
         {
-            salida.AddLast(new Token(tipo, auxlex, fila, columna));
+            salida.AddLast(new Token(tipo, auxlex, filaDeInicio, columnaDeInicio));
             auxlex = "";
             estado = 0;
+        }
+        public void agregarError()
+        {
+            agregarToken(Token.Tipo.INDEFINIDO);
+            existenciaError = true;
         }
         public void agregarCaracter(char c)
         {

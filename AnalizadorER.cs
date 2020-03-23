@@ -12,51 +12,64 @@ namespace _OLC1_Proyecto1_201800714
     class AnalizadorER
     {
         /*  Atributos
+            RutasImagenes: lista con las rutas de las imagenes generadas en graphviz
             controlToken: indica el indice de la lista de tokens con el que se esta trabajando.
             tokenActual: variable de la lista que se obtiene a partir de controlToken.
             listaTokens: tokens del analisis lexico.
+            ListaTokensAnalizados: tokens obtenidos de la validacion de las cadenas que corresponden a una ER.
             tablaSimbolos: objeto donde se guardan los valores de las variables encontradas.
             existenciaError: booleano que indica si se encontro un error Sintactico en todo el analisis.
             errorSintactico: bandera booleana que sirve para indicar a este objeto si existe un error (ver Parea).
             consola: texto que se genera para mostrar al usuario sobre los posibles errores sintacticos.
         */
-        public LinkedList<string> RutasImagenes = new LinkedList<string>();
-        int controlToken;
-        Token tokenActual;
-        LinkedList<Token> listaTokens;
-        public Dictionary<string, Simbolo> tablaSimbolos = new Dictionary<string, Simbolo>();
+        public LinkedList<string> RutasImagenes;
+        private int controlToken;
+        private Token tokenActual;
+        private LinkedList<Token> listaTokens;
+        private LinkedList<Token> ListaTokensAnalizados;
+        private Dictionary<string, Simbolo> tablaSimbolos = new Dictionary<string, Simbolo>();
         public string consola;
-        public bool existenciaError = false;
-        bool errorSintactico = false;
+        public bool existenciaErrorSintactico;
+        private bool errorSintactico;
+        public AnalizadorER()
+        {
+            this.ListaTokensAnalizados = new LinkedList<Token>();
+            this.RutasImagenes = new LinkedList<string>();
+            tablaSimbolos = new Dictionary<string, Simbolo>();
+            consola = "";
+            existenciaErrorSintactico = false;
+            errorSintactico = false;
+        }
         /*  GRAMATICA
-        <INICIO>::=<LISTA_INSTRUCCIONES>
-        <LISTA_INSTRUCCIONES>::=<DECLARACION_CONJ> <LISTA_INSTRUCCIONES> 							
-                            |	ID <LISTA_INSTRUCCIONES'>								
-                            |	epsilon
-        <LISTA_INSTRUCCIONES'>::=<DECLARACION_ER> <LISTA_INSTRUCCIONES>
-                            |	<VALIDACION_ER> <LISTA_INSTRUCCIONES>				
-        <DECLARACION_CONJ>::= 	PR_CONJ S_DOS_PUNTOS ID S_FLECHA <ELEMENTO> <RANGO> S_PUNTO_Y_COMA	
-        <ELEMENTO>::=			LETRA
-                            |	NUMERO
-                            |	SIGNO
-                            |	CARACTER_ESPECIAL
-        <RANGO>::=				S_VIRGUILLA	<ELEMENTO>
-                            |	<RANGO_P>
-        <RANGO_P>::=			S_COMA <ELEMENTO> <RANGO_P>
-                            |	epsilon
-        <DECLARACION_ER>::=		S_FLECHA <ESTRUCTURA> S_PUNTO_Y_COMA
-        <ESTRUCTURA>::=			S_PUNTO <ESTRUCTURA'> <ESTRUCTURA'>
-                            |	S_PLECA	<ESTRUCTURA'> <ESTRUCTURA'>
-                            |	S_INTERROGACION	<ESTRUCTURA'>
-                            |	S_ASTERISCO	<ESTRUCTURA'>
-                            |	S_SUMA <ESTRUCTURA'>
-        <ESTRUCTURA'>::=		S_LLAVE_IZQ ID S_LLAVE_DER
-                            |	CADENA
-                            |	CARACTER_ESPECIAL
-                            |	C_TODO
-                            |	<ESTRUCTURA>
-        <VALIDACION_ER>::=		S_DOS_PUNTOS CADENA S_PUNTO_Y_COMA
-        */
+         *  <INICIO>::=<LISTA_INSTRUCCIONES>
+         *  <LISTA_INSTRUCCIONES>::=<DECLARACION_CONJ> <LISTA_INSTRUCCIONES>
+         *                      |	ID <LISTA_INSTRUCCIONES'>
+         *                      |	epsilon
+         *  <LISTA_INSTRUCCIONES'>::=<DECLARACION_ER> <LISTA_INSTRUCCIONES>
+         *                      |	<VALIDACION_ER> <LISTA_INSTRUCCIONES>
+         *  <DECLARACION_CONJ>::= 	PR_CONJ S_DOS_PUNTOS ID S_FLECHA <ELEMENTO> <RANGO> S_PUNTO_Y_COMA
+         *  <ELEMENTO>::=			LETRA
+         *     		|	NUMERO
+					|	SIGNO
+					|	CARACTER_ESPECIAL
+					|	C_TODO
+            <RANGO>::=  S_VIRGUILLA	<ELEMENTO>
+					|	<RANGO_P>
+            <RANGO_P>::=    S_COMA <ELEMENTO> <RANGO_P>
+					|	epsilon
+            <DECLARACION_ER>::=		S_FLECHA <ESTRUCTURA> S_PUNTO_Y_COMA
+            <ESTRUCTURA>::=			S_PUNTO <ESTRUCTURA'> <ESTRUCTURA'>
+					|	S_PLECA	<ESTRUCTURA'> <ESTRUCTURA'>
+					|	S_INTERROGACION	<ESTRUCTURA'>
+					|	S_ASTERISCO	<ESTRUCTURA'>
+					|	S_SUMA <ESTRUCTURA'>
+            <ESTRUCTURA'>::=		S_LLAVE_IZQ ID S_LLAVE_DER
+					|	CADENA
+					|	CARACTER_ESPECIAL
+					|	C_TODO
+					|	<ESTRUCTURA>
+            <VALIDACION_ER>::=		S_DOS_PUNTOS CADENA S_PUNTO_Y_COMA
+*/
         /* Comparador:
          * Verifica que el tokenActual sea del mismo tipo que se solicita. (Se usa en 'Primeros' y con ello se elige una alternativa dependiendo la produccion de la gramatica)
          */
@@ -111,7 +124,7 @@ namespace _OLC1_Proyecto1_201800714
                     Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [" + tipoToken.ToString() + "] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
                     consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [" + tipoToken.ToString() + "] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                     errorSintactico = true;
-                    existenciaError = true;
+                    existenciaErrorSintactico = true;
                 }
             }
         }
@@ -119,12 +132,13 @@ namespace _OLC1_Proyecto1_201800714
         *  Parsear:
         *  Inicia el analisis sintactico llamando al no terminal inicio.
         **/
-        public void Parsear(LinkedList<Token> tokens)
+        public LinkedList<Token> Parsear(LinkedList<Token> tokens)
         {
             this.listaTokens = tokens;
             controlToken = 0;
             tokenActual = listaTokens.ElementAt(controlToken);
             Inicio();
+            return ListaTokensAnalizados;
         }
         /**
          * TODOS LOS SIGUIENTES SON NO TERMINALES PERTENECIENTES A LA GRAMATICA DEL ANALISIS SINTACTICO.
@@ -224,12 +238,16 @@ namespace _OLC1_Proyecto1_201800714
             {
                 Parea(Token.Tipo.CARACTER_ESPECIAL);
             }
+            else if (Comparador(Token.Tipo.C_TODO))
+            {
+                Parea(Token.Tipo.C_TODO);
+            }
             else
             {
                 Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [LETRA|NUMERO|SIGNO|CARACTER_ESPECIAL] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
-                consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [LETRA|NUMERO|SIGNO|CARACTER_ESPECIAL] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
+                consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [LETRA|NUMERO|SIGNO|CARACTER_ESPECIAL|C_TODO] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                 errorSintactico = true;
-                existenciaError = true;
+                existenciaErrorSintactico = true;
                 return null;
             }
             return elemento;
@@ -274,7 +292,7 @@ namespace _OLC1_Proyecto1_201800714
                 Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [S_VIRGUILLA|S_COMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
                 consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [S_VIRGUILLA|S_COMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                 errorSintactico = true;
-                existenciaError = true;
+                existenciaErrorSintactico = true;
             }
         }
         public void Rango_P(ref LinkedList<string> elementos)
@@ -309,7 +327,7 @@ namespace _OLC1_Proyecto1_201800714
                 Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [S_FLECHA|S_DOS_PUNTOS] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
                 consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [S_FLECHA|S_DOS_PUNTOS] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                 errorSintactico = true;
-                existenciaError = true;
+                existenciaErrorSintactico = true;
             }
         }
         /* Declaracion_ER:  Guarda en la tabla de simbolos un objeto de tipo Estructura.
@@ -358,7 +376,6 @@ namespace _OLC1_Proyecto1_201800714
                 //Creacion de Estados y sus transiciones.
                 do
                 {
-                    Console.WriteLine("Sexo");
                     nuevaEntrada = false;
                     //Dictionary<string, Cerradura> auxiliar = new Dictionary<string, Cerradura>(Cerraduras);
                     LinkedList<Cerradura> auxiliar = new LinkedList<Cerradura>(Cerraduras);
@@ -535,7 +552,7 @@ namespace _OLC1_Proyecto1_201800714
                 Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [S_PUNTO|S_PLECA|S_INTERROGACION|S_ASTERISCO|S_SUMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
                 consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [S_PUNTO|S_PLECA|S_INTERROGACION|S_ASTERISCO|S_SUMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                 errorSintactico = true;
-                existenciaError = true;
+                existenciaErrorSintactico = true;
                 return null;
             }
         }
@@ -557,6 +574,12 @@ namespace _OLC1_Proyecto1_201800714
                         Conjunto conjunto = (Conjunto)simbolo.GetValor();
                         id.ListaValores = new LinkedList<string>(conjunto.GetElementos());
                         terminals.AddLast(id);
+                        consola += "*Elementos para conjunto " + id.GetRepresentacion() + ":";
+                        foreach (string elemento in id.ListaValores)
+                        {
+                            consola += "-" + elemento;
+                        }
+                        consola += "-*\n";
                     }
                     catch (KeyNotFoundException)
                     {
@@ -609,7 +632,7 @@ namespace _OLC1_Proyecto1_201800714
                 Console.WriteLine("Error Sintactico\nEn ID_Token: " + controlToken + "\nSe esperaba [S_LLAVE_IZQ|CADENA|CARACTER_ESPECIAL|C_TODO|S_PUNTO|S_PLECA|S_INTERROGACION|S_ASTERISCO|S_SUMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]");
                 consola += "*Error Sintactico*\nEn ID_Token: " + controlToken + "\nSe esperaba [S_LLAVE_IZQ|CADENA|CARACTER_ESPECIAL|C_TODO|S_PUNTO|S_PLECA|S_INTERROGACION|S_ASTERISCO|S_SUMA] en lugar de [" + tokenActual.GetTipo() + ", " + tokenActual.GetValor() + "]\n";
                 errorSintactico = true;
-                existenciaError = true;
+                existenciaErrorSintactico = true;
                 return null;
             }
         }
@@ -633,6 +656,8 @@ namespace _OLC1_Proyecto1_201800714
             string lexema = tokenActual.GetValor();
             lexema = lexema.Remove(0, 1);
             lexema = lexema.Remove(lexema.Length - 1, 1);
+            int filaInicio = tokenActual.GetFila();
+            int columnaInicio = tokenActual.GetColumna() + 1;
             Parea(Token.Tipo.CADENA);
             Parea(Token.Tipo.S_PUNTO_Y_COMA);
             //Aqui continua la validacion del lexema.
@@ -646,13 +671,13 @@ namespace _OLC1_Proyecto1_201800714
                 }
                 Cerradura estado = (Cerradura)simbolo.GetValor();
                 int contador = 0;
-                if (estado.Validar(lexema, ref contador))
+                if (estado.Validar(lexema, ref contador, ref filaInicio, ref columnaInicio, ref ListaTokensAnalizados))
                 {
-                    consola += "El lexema: \"" + lexema + "\", es válido para el conjunto: " + id + "\n";
+                    consola += "El lexema: \"" + lexema + "\", es válido para la Expresion Regular: " + id + "\n";
                 }
                 else
                 {
-                    consola += "El lexema: \"" + lexema + "\", no es válido para el conjunto: " + id + "\n";
+                    consola += "El lexema: \"" + lexema + "\", no es válido para la Expresion Regular: " + id + "\n";
                 }
             }
             catch (KeyNotFoundException)
