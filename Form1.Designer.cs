@@ -45,9 +45,13 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -108,20 +112,22 @@
             // cargarThomsonToolStripMenuItem
             // 
             this.cargarThomsonToolStripMenuItem.Name = "cargarThomsonToolStripMenuItem";
-            this.cargarThomsonToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.cargarThomsonToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.cargarThomsonToolStripMenuItem.Text = "Cargar Thomson";
             // 
             // guardarTokensToolStripMenuItem
             // 
             this.guardarTokensToolStripMenuItem.Name = "guardarTokensToolStripMenuItem";
-            this.guardarTokensToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.guardarTokensToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.guardarTokensToolStripMenuItem.Text = "Guardar Tokens";
+            this.guardarTokensToolStripMenuItem.Click += new System.EventHandler(this.guardarTokensToolStripMenuItem_Click);
             // 
             // guardarErroresToolStripMenuItem
             // 
             this.guardarErroresToolStripMenuItem.Name = "guardarErroresToolStripMenuItem";
-            this.guardarErroresToolStripMenuItem.Size = new System.Drawing.Size(246, 34);
+            this.guardarErroresToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.guardarErroresToolStripMenuItem.Text = "Guardar Errores";
+            this.guardarErroresToolStripMenuItem.Click += new System.EventHandler(this.guardarErroresToolStripMenuItem_Click);
             // 
             // reportesToolStripMenuItem
             // 
@@ -134,8 +140,9 @@
             // erroresLéxicosToolStripMenuItem
             // 
             this.erroresLéxicosToolStripMenuItem.Name = "erroresLéxicosToolStripMenuItem";
-            this.erroresLéxicosToolStripMenuItem.Size = new System.Drawing.Size(226, 34);
+            this.erroresLéxicosToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.erroresLéxicosToolStripMenuItem.Text = "Errores léxicos";
+            this.erroresLéxicosToolStripMenuItem.Click += new System.EventHandler(this.erroresLéxicosToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -167,16 +174,16 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(16, 731);
+            this.richTextBox1.Location = new System.Drawing.Point(761, 730);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(735, 172);
+            this.richTextBox1.Size = new System.Drawing.Size(661, 172);
             this.richTextBox1.TabIndex = 2;
             this.richTextBox1.Text = "";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 708);
+            this.label1.Location = new System.Drawing.Point(757, 707);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.TabIndex = 3;
@@ -184,13 +191,45 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(757, 65);
+            this.button1.Location = new System.Drawing.Point(311, 707);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(86, 69);
+            this.button1.Size = new System.Drawing.Size(100, 72);
             this.button1.TabIndex = 4;
             this.button1.Text = "Analizar Entrada";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(761, 635);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(145, 51);
+            this.button2.TabIndex = 6;
+            this.button2.Text = "Anterior";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button3
+            // 
+            this.button3.Enabled = false;
+            this.button3.Location = new System.Drawing.Point(1277, 635);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(145, 51);
+            this.button3.TabIndex = 7;
+            this.button3.Text = "Siguiente";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(761, 141);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(661, 467);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 8;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Visible = false;
             // 
             // Form1
             // 
@@ -198,6 +237,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1434, 914);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.richTextBox1);
@@ -212,6 +254,7 @@
             this.menuStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -236,6 +279,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.RichTextBox richTextBox2;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
