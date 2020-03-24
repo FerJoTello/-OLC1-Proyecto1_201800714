@@ -17,6 +17,7 @@ namespace _OLC1_Proyecto1_201800714
     {
         private int cont_pestaña = 1;
         private LinkedList<string> ListaImagenes = new LinkedList<string>();
+        private LinkedList<Token> ListaErroresLexico = new LinkedList<Token>();
         private LinkedList<Token> ListaTokens = new LinkedList<Token>();
         private LinkedList<Token> ListaErrores = new LinkedList<Token>();
         private int imagen_actual = 0;
@@ -146,26 +147,32 @@ namespace _OLC1_Proyecto1_201800714
                                 {
                                     button3.Enabled = true;
                                 }
+                            }//Se imprimen los resultados del análisis sintáctico.
+                            if (!analizadorER.existenciaErrorSintactico)
+                            {
+                                richTextBox1.Text += analizadorER.consola;
+                                richTextBox1.Text += "*SIN ERRORES SINTACTICOS*\n**Finaliza Análisis Sintáctico**\n";
+                            }
+                            else
+                            {
+                                richTextBox1.Text += analizadorER.consola + "**Finaliza Análisis Sintáctico**\n";
                             }
                         }
                         else
                         {
                             richTextBox1.Text += "Se encontraron errores léxicos. No puede iniciar análsis sintáctico\n";
+                            foreach (Token error in listaTokens)
+                            {
+                                if (error.GetTipo() == Token.Tipo.INDEFINIDO)
+                                {
+                                    ListaErroresLexico.AddLast(error);
+                                }
+                            }
                         }
                     }
                     else
                     {
                         richTextBox1.Text += "El analisis lexico no devolvió ningún token. No puede iniciar análsis sintáctico\n";
-                    }
-                    //Se imprimen los resultados del análisis sintáctico.
-                    if (!analizadorER.existenciaErrorSintactico)
-                    {
-                        richTextBox1.Text += analizadorER.consola;
-                        richTextBox1.Text += "*SIN ERRORES SINTACTICOS*\n**Finaliza Análisis Sintáctico**\n";
-                    }
-                    else
-                    {
-                        richTextBox1.Text += analizadorER.consola + "**Finaliza Análisis Sintáctico**\n";
                     }
                 }
             }
@@ -259,7 +266,7 @@ namespace _OLC1_Proyecto1_201800714
         {
             try
             {
-                if (ListaErrores.Count != 0)
+                if (ListaErroresLexico.Count != 0)
                 {
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     saveFileDialog.Filter = "Archivos PDF | *.pdf";
@@ -277,7 +284,7 @@ namespace _OLC1_Proyecto1_201800714
                     tabla.AddCell("Fila");
                     tabla.AddCell("Columna");
                     int contadorError = 1;
-                    foreach (Token error in ListaErrores)
+                    foreach (Token error in ListaErroresLexico)
                     {
                         tabla.AddCell(contadorError.ToString());
                         tabla.AddCell(error.GetValor());

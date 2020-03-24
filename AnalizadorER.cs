@@ -398,6 +398,7 @@ namespace _OLC1_Proyecto1_201800714
                                     LinkedList<Nodo> cm = new LinkedList<Nodo>();
                                     foreach (Nodo elementoMover in Mover)
                                     {
+                                        
                                         cm = new LinkedList<Nodo>(cm.Union(elementoMover.ObtenerCerraduras()));
                                     }
                                     cm = new LinkedList<Nodo>(cm.OrderBy(nodo => nodo.Numero));

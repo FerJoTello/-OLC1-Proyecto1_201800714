@@ -408,6 +408,8 @@ namespace _OLC1_Proyecto1_201800714
                                     //Es un estado que posee mas transiciones epsilon.
                                     else
                                     {
+                                        //Para evitar ciclo infinito (puede que un no
+                                        this.ObtuvoCerradura = true;
                                         //Obtiene sus cerraduras ySe las agrega a la listaAuxiliar.
                                         foreach (Nodo final in cerradurita2.ObtenerCerraduras())
                                         {
